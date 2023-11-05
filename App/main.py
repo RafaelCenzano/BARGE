@@ -18,6 +18,7 @@ from task import Task
 from taskList import TaskList
 from boardUI import BoardUi
 
+
 # Controller
 class MainController:
     def __init__(self):
@@ -31,6 +32,14 @@ class MainController:
         self.view.done_List.itemClicked.connect(self.clickTaskScript)
         
         self.view.show()
+
+        # Syncing.checkToken("token")
+        # Return True if working token, False otherwise ask for Token
+        # This checkToken should be run when loading a token from local
+        # storage on app start and when new tokens are added
+        self.sync = Syncing("test Board", "token")
+        # self.sync.sync()
+        # This sync method should be run connected to the sync button
 
     def addTaskScript(self):
         dialog = QDialog(self.view)
@@ -125,8 +134,27 @@ class MainController:
                 f"Timeframe: {task.timeframe}\n"
                 f"Status: {task.progress}\n"
             )
-
         QMessageBox.information(self.view, "Task Information", task_info)
+
+    def filterTasks(self, query):
+        query = self.search_bar.text().lower()
+
+        # Clear all lists
+        self.toDo_List.clear()
+        self.inProgress_List.clear()
+        self.done_List.clear()
+        for task_id, task in self.taskDict.items():
+            if query in task.name.lower() or query in task.description.lower():
+                item = QListWidgetItem(task.name)
+                item.setData(Qt.ItemDataRole.UserRole, task_id)
+
+                if task.progress == "To Do":
+                    self.toDo_List.addItem(item)
+                elif task.progress == "In Progress":
+                    self.inProgress_List.addItem(item)
+                elif task.progress == "Done":
+                    self.done_List.addItem(item)
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

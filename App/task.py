@@ -1,10 +1,7 @@
-import json
-
-
 class Task:
     def __init__(
         self, id, name, description, timeframe, links, people, points, progress
-    ):
+    ) -> None:
         self.id = id
         self.name = name
         self.description = description
