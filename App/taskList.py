@@ -70,7 +70,6 @@ class TaskList:
 
     def editTask(self, task_id, newTask):
         if self.deleteTask(task_id):
-            self.addTask(newTask)
             filename = self.boardName + "_taskList.json"
 
             if not os.path.isfile(filename):
