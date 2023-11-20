@@ -367,6 +367,7 @@ class MainController:
         )
         if dialog.exec() == QMessageBox.StandardButton.Yes:
             if self.removeTaskFromBoard(task, task_id):
+                self.board.deleteTask(task_id)
                 QMessageBox.information(
                     self.view, "Task Deleted", "The task has been deleted successfully!"
                 )
