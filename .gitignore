@@ -7,3 +7,5 @@ dist/
 build/
 main.spec
 
+test Board_taskList.json
+*.txt
