@@ -28,6 +28,7 @@ class SingletonMeta(type):
 
 
 class Syncing(metaclass=SingletonMeta):
+    # Setup class variables
     def __init__(self, filename) -> None:
         self.github_auth_token = ""
         self.github_username = ""
@@ -39,13 +40,17 @@ class Syncing(metaclass=SingletonMeta):
         self.connectedRepo = False
 
     def connectRepo(self) -> None:
+        # Find an existing repository and connect GitPython to it
         if isdir(self.data_path) and isdir(join(self.data_path, ".git")):
             self.repo = Repo(self.data_path)
+        
+        # Create a new repository
         else:
             self.createRepo()
         self.connectedRepo = True
 
     def createRepo(self) -> None:
+        # Create local repository
         self.repo = Repo.init(self.data_path, initial_branch="main")
 
         headers = {"Authorization": f"Bearer {self.github_auth_token}"}
@@ -68,7 +73,7 @@ class Syncing(metaclass=SingletonMeta):
             num += 1
 
         print("Creating repository")
-        # Create the repository
+        # Create the GitHub repository
         name = f"BARGE-Kanban-{num}"
         payload = {
             "name": name,
@@ -87,23 +92,29 @@ class Syncing(metaclass=SingletonMeta):
             )
             exit()
 
+        # Add remotes to local repository
         created_repo = f"https://github.com/{self.github_username}/BARGE-Kanban-{num}"
         print(f"Created {created_repo}")
         self.repo.create_remote("origin", created_repo)
+
+        # Add and sync existing data
         self.repo.index.add([self.json_path])
         now = datetime.utcnow().strftime("%-m/%-d/%Y %H:%M:%S")
         self.repo.index.commit(f"Initial commit of tasks {now}")
         self.repo.git.push("--set-upstream", self.repo.remote().name, "main")
 
     def addToken(self, github_auth_token) -> bool:
+        # Validate token
         if not self.checkToken(github_auth_token):
             print("Unable to authenticate with the given github authentication token")
-            # exit()
             return False
+
+        # Store token
         self.github_auth_token = github_auth_token
         return True
 
     def addUsername(self, github_username) -> bool:
+        # Validate username
         if self.github_auth_token == "":
             return False
         headers = {"Authorization": f"Bearer {self.github_auth_token}"}
@@ -117,27 +128,39 @@ class Syncing(metaclass=SingletonMeta):
             != 200
         ):
             print("Github user is invalid")
-            # exit()
             return False
+
+        # Store username
         self.github_username = github_username
         return True
 
     def readyToSync(self) -> bool:
+        # Ensure that token and username are stored
         return self.github_auth_token != "" and self.github_username != ""
 
     def connected(self) -> bool:
+        # Ensure a repo is setup
         return self.connectedRepo
 
     def sync(self) -> None:
+
+        # Main sync function connected to sync button
         print("Syncing")
         if self.repo is not None:
+
+            # Fetch existing data
             self.repo.remotes.origin.fetch()
+
+            # Add and commit local changes
             self.repo.index.add([self.json_path])
             now = datetime.utcnow().strftime("%-m-%-d-%Y %H:%M:%S")
             self.repo.index.commit(f"Update tasks {now}")
+
+            # Pull and push to sync changes
             self.repo.remotes.origin.pull(rebase=True)
             self.repo.remotes.origin.push()
 
+    # static method to check if a token is a valid
     @staticmethod
     def checkToken(github_auth_token: str) -> bool:
         headers = {"Authorization": f"Bearer {github_auth_token}"}
