@@ -43,7 +43,7 @@ class Syncing(metaclass=SingletonMeta):
         # Find an existing repository and connect GitPython to it
         if isdir(self.data_path) and isdir(join(self.data_path, ".git")):
             self.repo = Repo(self.data_path)
-        
+
         # Create a new repository
         else:
             self.createRepo()
@@ -143,11 +143,9 @@ class Syncing(metaclass=SingletonMeta):
         return self.connectedRepo
 
     def sync(self) -> None:
-
         # Main sync function connected to sync button
         print("Syncing")
         if self.repo is not None:
-
             # Fetch existing data
             self.repo.remotes.origin.fetch()
 
