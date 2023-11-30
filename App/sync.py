@@ -133,7 +133,7 @@ class Syncing(metaclass=SingletonMeta):
         if self.repo is not None:
             self.repo.remotes.origin.fetch()
             self.repo.index.add([self.json_path])
-            now = datetime.utcnow().strftime("%-m/%-d/%Y %H:%M:%S")
+            now = datetime.utcnow().strftime("%-m-%-d-%Y %H:%M:%S")
             self.repo.index.commit(f"Update tasks {now}")
             self.repo.remotes.origin.pull(rebase=True)
             self.repo.remotes.origin.push()
