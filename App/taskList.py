@@ -6,7 +6,7 @@ from task import Task
 
 
 class TaskList:
-    def __init__(self, boardName):
+    def __init__(self, boardName) -> None:
         self.numTasks = 0
         self.boardName = boardName
         data_path = os.path.join(
